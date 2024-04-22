@@ -12,8 +12,8 @@ const htmlTaskcontent = ({url, title, type, description, id}) => `
 <button type="button" class="btn btn-outline-primary mr-2" name=${id}>
 <i class=" fas fa-pencil-alt" name=${id}></i>
 </button>
-<button type="button" class="btn btn-outline-danger mr-2" name=${id}>
-<i class=" fas fa-trash-alt" name=${id} onclick="DeleteTask.apply(this, arguments)"></i>
+<button type="button" class="btn btn-outline-danger mr-2" name=${id} onclick="deleteTask.apply(this, arguments)">
+<i class=" fas fa-trash-alt" name=${id} onclick="deleteTask.apply(this, arguments)"></i>
 </button>
 </div>
 <div class="card-body">
@@ -30,8 +30,7 @@ ${title}
 <span class="badge text-bg-primary m-1 ">${type}</span>
 </div>
 <div class="card-footer">
-<button class="btn btn-outline-primary float-right" data-bs-toggle="modal" data-bs-target="#showtask" 
-id= ${id} onclick="openTask.apply(this, arguments)"> Open Task</button>
+<button class="btn btn-outline-primary float-right" data-bs-toggle="modal" data-bs-target="#showtask" id=${id} onclick="openTask.apply(this, arguments)"> Open Task</button>
 </div>
 </div>
 </div>
@@ -70,8 +69,8 @@ const loadInitialData = () => {
 }
 
 const handleSubmit = (event) =>{
-const id = Date.now();
-console.log(id);
+const id = `${Date.now()}`;
+//console.log(id);
 const input = {
     url: document.getElementById('Imageurl').value,
     title: document.getElementById('tasktitle').value,
@@ -79,7 +78,7 @@ const input = {
     type: document.getElementById('tags').value,
 };
 
-if(input.title === "" || input.description === "" || input.type ===""){
+if(input.title === "" || input.description === "" || input.type === ""){
     return alert("please fill all required fields")
 }
 
@@ -90,28 +89,32 @@ taskcontents.insertAdjacentHTML("beforeend", htmlTaskcontent({
 
 state.tasklist.push({...input, id});
 UpdateLocalStorage();
+location.reload();
 }
 
 const openTask = (e) => {
-    if(!e) e = window.event;
+    if(!e) e= window.event;
 
-    const getTask = state.tasklist.find(({id}) => id === e.target.id);
+    const getTask = state.tasklist.find(({id})=> id === e.target.id);
+    console.log(getTask);
     taskModal.innerHTML = htmlModalContent(getTask);
 }
 
-const DeleteTask = (e) => {
-    if(!e) e = window.event;
+const deleteTask = (e) => {
+    if(!e) e= window.event;
 
-    const targetid = e.target.getAttribute("name");
+    const targetId = e.target.getAttribute("name");
     const type = e.target.tagName;
-
-    const removeTask = state.tasklist.filter(({id})=> id!== targetid);
+//console.log(type)
+    const removeTask = state.tasklist.filter(({id})=> id!== targetId);
+    //console.log(removeTask)
     state.tasklist = removeTask;
     UpdateLocalStorage();
+    location.reload();
     
     if(type === "BUTTON"){
-        return e.target.parentNode.parentNode.parentNode
+        return e.target.parentNode.parentNode.parentNode.removeChild(e.target.parentNode.parentNode.parentNode)
     }
-    return
+    return e.target.parentNode.parentNode.parentNode.parentNode.removeChild(e.target.parentNode.parentNode.parentNode.parentNode)
 }
 // http status code
