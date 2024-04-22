@@ -1,0 +1,22 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    background-color: #d1cfe4 !important;
+}
+.new_btn_small_scrn{
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    padding: 15px 10px;
+    background-color: white;
+    z-index: 3;
+    width: 100%;
+}
+@media (min-width: 760px){
+    .new_btn_small_scrn{
+        display: none;
+    }
+}
