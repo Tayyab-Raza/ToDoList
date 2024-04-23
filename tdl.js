@@ -9,11 +9,11 @@ const htmlTaskcontent = ({url, title, type, description, id}) => `
 <div class="col-md-6 col-lg-4 mt-3" id=${id} key=${id}>
 <div class="card shadow-sm task_card">
 <div class="card-header d-flex justify-content-end task_card_header">
-<button type="button" class="btn btn-outline-primary mr-2" name=${id}>
-<i class=" fas fa-pencil-alt" name=${id}></i>
+<button type="button" class="btn btn-outline-primary mr-2" name=${id} onclick="editTask.apply(this, arguments)">
+<i class= "fas fa-pencil-alt" name=${id}></i>
 </button>
 <button type="button" class="btn btn-outline-danger mr-2" name=${id} onclick="deleteTask.apply(this, arguments)">
-<i class=" fas fa-trash-alt" name=${id} onclick="deleteTask.apply(this, arguments)"></i>
+<i class=" fas fa-trash-alt" name=${id} ></i>
 </button>
 </div>
 <div class="card-body">
@@ -96,7 +96,7 @@ const openTask = (e) => {
     if(!e) e= window.event;
 
     const getTask = state.tasklist.find(({id})=> id === e.target.id);
-    console.log(getTask);
+    //console.log(getTask);
     taskModal.innerHTML = htmlModalContent(getTask);
 }
 
@@ -111,10 +111,108 @@ const deleteTask = (e) => {
     state.tasklist = removeTask;
     UpdateLocalStorage();
     location.reload();
-    
+
     if(type === "BUTTON"){
         return e.target.parentNode.parentNode.parentNode.removeChild(e.target.parentNode.parentNode.parentNode)
     }
     return e.target.parentNode.parentNode.parentNode.parentNode.removeChild(e.target.parentNode.parentNode.parentNode.parentNode)
 }
-// http status code
+
+const editTask = (e) => {
+    
+    if(!e) e = window.event;
+
+    const targetId = e.target.id;
+    const type = e.target.tagName;
+
+
+    let parentNode;
+    let tasktitle;
+    let taskdesc;
+    let tags;
+    let submitButton;
+
+    if(type === "BUTTON"){
+        parentNode = e.target.parentNode.parentNode;
+    } else{
+        parentNode = e.target.parentNode.parentNode.parentNode;
+    }
+
+tasktitle = parentNode.childNodes[3].childNodes[3];
+//console.log(tasktitle)
+taskdesc = parentNode.childNodes[3].childNodes[5];
+tags = parentNode.childNodes[3].childNodes[7].childNodes[1];
+submitButton = parentNode.childNodes[3].childNodes[9];
+//console.log(submitButton)
+tasktitle.setAttribute("contenteditable", "true");
+taskdesc.setAttribute("contenteditable", "true");
+tags.setAttribute("contenteditable", "true");
+
+submitButton.setAttribute('onclick', "saveEdit.apply(this, arguments)");
+ submitButton.removeAttribute("data-bs-toggle");
+ submitButton.removeAttribute("data-bs-target");
+ submitButton.innerHTML = "Save Changes"
+}
+
+const saveEdit = (e) => {
+    if(!e) e = window.event;
+
+    const targetId = e.target.id;
+    const parentNode = e.target.parentNode.parentNode;
+
+    tasktitle = parentNode.childNodes[3].childNodes[3];
+//console.log(tasktitle)
+taskdesc = parentNode.childNodes[3].childNodes[5];
+tags = parentNode.childNodes[3].childNodes[7].childNodes[1];
+submitButton = parentNode.childNodes[3].childNodes[9];
+
+
+const updateData = {
+    tasktitle: tasktitle.innerHTML,
+    taskdesc: taskdesc.innerHTML,
+    tags: tags.innerHTML,
+}
+
+let stateCopy = state.tasklist;
+
+stateCopy = stateCopy.map((task)=> 
+task.id === targetId ?
+{
+id: task.id,
+title: updateData.tasktitle,
+description: updateData.taskdesc,
+tags: updateData.tags,
+url: task.url,
+}
+:
+task
+);
+
+state.tasklist = stateCopy;
+UpdateLocalStorage();
+
+
+tasktitle.setAttribute("contenteditable", "false");
+taskdesc.setAttribute("contenteditable", "false");
+tags.setAttribute("contenteditable", "false");
+
+submitButton.setAttribute("onclick", "openTask.apply(this, arguments)");
+submitButton.setAttribute("data-bs-toggle", "modal");
+ submitButton.setAttribute("data-bs-target", "#showtask");
+ submitButton.innerHTML = "Open Task"
+}
+
+const searchTask = (e) => {
+    if(!e) e= window.event;
+
+    while(taskcontents.firstChild){
+        taskcontents.removeChild(taskcontents.firstChild)
+    }
+
+    const resultData = state.tasklist.filter(({title})=> title.includes(e.target.value));
+    //console.log(resultData)
+
+    resultData.map((cardData)=>{
+        taskcontents.insertAdjacentHTML("beforeend", htmlTaskcontent(cardData));
+    })
+}

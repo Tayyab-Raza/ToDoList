@@ -44,10 +44,11 @@
             <div class="row justify-content-center">
                 <div class="col-md-6 ">
                     <div class="input-group mb-3 shadow-lg">
-                        <input type="text" 
+                        <input type="search" 
                         class="form-control" 
                         placeholder="Search Tasks!" 
-                        aria-label="Username">
+                        aria-label="Username"
+                        oninput="searchTask.apply(this, arguments)">
                         <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
                         </div>
                 </div>
